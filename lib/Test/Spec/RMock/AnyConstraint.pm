@@ -1,8 +1,6 @@
 package Test::Spec::RMock::AnyConstraint;
 
-use Moose;
-use namespace::autoclean;
-
+sub new  { bless {}, $_[0] }
 sub call { 1 }
 
 1;
@@ -17,7 +15,7 @@ Test::Spec::RMock::AnyConstraint
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 
