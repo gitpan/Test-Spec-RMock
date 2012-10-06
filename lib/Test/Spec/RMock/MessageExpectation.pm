@@ -3,8 +3,6 @@ package Test::Spec::RMock::MessageExpectation;
 use Moose;
 use namespace::autoclean;
 
-use Test::More;
-
 has _name => (is => 'ro');
 
 has _return_value => (
@@ -47,32 +45,37 @@ around BUILDARGS => sub {
 sub call {
     my ($self, @args) = @_;
     $self->_increment_call_counter;
-    $self->_check_arguments(@args);
     die $self->_exception if $self->_exception;
     $self->_return_value;
 }
 
 
-sub is_conditions_satisfied {
+sub is_all_conditions_satisfied {
     my ($self, @args) = @_;
     $self->_call_count_constraint->call($self->_number_of_times_called+1)
-        && $self->_arguments_matches(@args);
+        && $self->does_arguments_match(@args);
 }
 
 
-sub _arguments_matches {
+sub does_arguments_match {
     my ($self, @args) = @_;
     return 1 unless defined $self->_arguments;
-    return 0 unless scalar(@args) == scalar(@{$self->_arguments});
+    return unless scalar(@args) == scalar(@{$self->_arguments});
     for my $i (0..$#{$self->_arguments}) {
-        return 0 unless $args[$i] eq $self->_arguments->[$i];
+        return unless $args[$i] eq $self->_arguments->[$i];
     }
     return 1;
 }
 
-sub check {
+sub is_call_constrint_satisfied {
     my ($self) = @_;
-    $self->_check_call_constraint;
+    $self->_call_count_constraint->call($self->_number_of_times_called);
+}
+
+
+sub call_contraint_error_message {
+    my ($self) = @_;
+    "Call constraint failed";
 }
 
 
@@ -81,26 +84,6 @@ sub _increment_call_counter {
     $self->_number_of_times_called($self->_number_of_times_called + 1);
 }
 
-
-sub _decrement_call_counter {
-    my ($self) = @_;
-    $self->_number_of_times_called($self->_number_of_times_called - 1);
-}
-
-
-sub _check_arguments {
-    my ($self, @args) = @_;
-    return 1 unless defined $self->_arguments;
-    is(scalar(@args), scalar(@{$self->_arguments}), 'Number of arguments to '.$self->_name.' matches expectation');
-    is_deeply(\@args, $self->_arguments);
-}
-
-
-sub _check_call_constraint {
-    my ($self) = @_;
-    fail sprintf("'%s' failed call count constraint", $self->_name)
-        unless $self->_call_count_constraint->call($self->_number_of_times_called);
-}
 
 ###  RECEIVE COUNTS
 
@@ -180,7 +163,7 @@ Test::Spec::RMock::MessageExpectation
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 AUTHOR
 
