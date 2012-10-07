@@ -1,3 +1,7 @@
+2012-10-07: version 0.004    
+
+ - Added support for creating null object mocks
+
 2012-10-06: version 0.003    
 
  - Fixed a bug that was triggered when argument matching failed.

@@ -31,7 +31,7 @@ Test::Spec::RMock - a mocking library for Test::Spec
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
@@ -47,6 +47,8 @@ version 0.003
   };
 
   runtests unless caller;
+
+=encoding utf-8
 
 =head1 EXPORTED METHODS
 
@@ -88,6 +90,17 @@ the mocked object should receive.
 =item $mock->should_receive($name)
 
 =item $mock->should_not_receive($name)
+
+=back
+
+=head2 Null objects
+
+Use a null object when you don't care about the object's behavior or
+interaction, and don't want to explicitly stub everything out that's needed.
+
+=over 4
+
+=item $mock->as_null_object()
 
 =back
 
