@@ -29,8 +29,23 @@ sub should_not_receive {
 }
 
 sub stub {
-    my ($self, $method_name, $return_value) = @_;
-    $self->should_receive($method_name)->and_return($return_value)->any_number_of_times;
+    my ($self, %spec) = @_;
+    my $last_double;
+    while (my ($method_name, $return_value) = each %spec) {
+        $last_double = $self->should_receive($method_name)->and_return($return_value)->any_number_of_times;
+    }
+    $last_double;
+}
+
+sub stub_chain {
+    my ($self, @chain) = @_;
+    my $name = shift @chain;
+    if (@chain) {
+        my $next = __PACKAGE__->new('StubChainMockObject');
+        $self->stub($name => $next);
+        return $next->stub_chain(@chain);
+    }
+    $self->stub($name => undef);
 }
 
 sub as_null_object {
@@ -115,7 +130,7 @@ Test::Spec::RMock::MockObject
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 AUTHOR
 
