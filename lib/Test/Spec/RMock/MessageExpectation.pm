@@ -136,7 +136,7 @@ Test::Spec::RMock::MessageExpectation
 
 =head1 VERSION
 
-version 0.005
+version 0.005001
 
 =head1 AUTHOR
 
