@@ -1,5 +1,7 @@
 package Test::Spec::RMock::MessageExpectation;
 
+use Test::Deep qw();
+
 sub new {
     my ($class, $name) = @_;
     my $self = {
@@ -29,11 +31,8 @@ sub is_all_conditions_satisfied {
 sub does_arguments_match {
     my ($self, @args) = @_;
     return 1 if $self->_any_arguments_allowed;
-    return if scalar(@args) != scalar(@{$self->{_arguments}});
-    for my $i (0..$#{$self->{_arguments}}) {
-        return if $args[$i] ne $self->{_arguments}[$i];
-    }
-    return 1;
+    my ($ok, $stack) = Test::Deep::cmp_details(\@args, $self->{_arguments});
+    return $ok;
 }
 
 sub is_call_constrint_satisfied {
@@ -42,15 +41,15 @@ sub is_call_constrint_satisfied {
 }
 
 sub call_contraint_error_message {
-    my ($self) = @_;
-    "Call constraint failed";
+    my ($self, $mock_name) = @_;
+    $self->{_call_count_constraint}->error_message($mock_name, $self->{_name}, $self->{_number_of_times_called});
 }
 
 sub argument_matching_error_message {
-    my ($self) = @_;
-    "Argument matching failed";
+    my ($self, @args) = @_;
+    my ($ok, $stack) = Test::Deep::cmp_details(\@args, $self->{_arguments});
+    "Argument matching failed: " . Test::Deep::deep_diag($stack);
 }
-
 
 sub _any_arguments_allowed {
     my ($self) = @_;
@@ -136,7 +135,7 @@ Test::Spec::RMock::MessageExpectation
 
 =head1 VERSION
 
-version 0.005001
+version 0.006
 
 =head1 AUTHOR
 

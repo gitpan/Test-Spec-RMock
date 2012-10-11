@@ -4,11 +4,21 @@ BEGIN { use_ok 'Test::Spec::RMock' };
 
 describe 'Test::Spec::RMock' => sub {
 
-    it "should report calls to unmocked methods" => sub {
-        my $mock = rmock('foo')->__cancel;
-        $mock->bar;
-        $mock->__check;
-        is($mock->__check, "Unmocked method 'bar' called on 'foo'");
+    describe "calling unmocked methods" => sub {
+        my ($mock);
+        before each => sub {
+            $mock = rmock('foo')->__cancel;
+        };
+
+        it "should fail when calling without any arguments" => sub {
+            $mock->bar;
+            is($mock->__check, "Unmocked method 'bar' called on 'foo' with ()");
+        };
+
+        it "should fail when calling with arguments" => sub {
+            $mock->bar(1, 2, 3);
+            is($mock->__check, "Unmocked method 'bar' called on 'foo' with ('1', '2', '3')");
+        };
     };
 
     describe 'method stubs' => sub {
@@ -53,7 +63,7 @@ describe 'Test::Spec::RMock' => sub {
             it 'should fail when called zero times' => sub {
                 my $mock = rmock('foo')->__cancel;
                 $mock->should_receive('bar')->at_least_once;
-                is($mock->__check, "Call constraint failed");
+                is($mock->__check, "Expected 'bar' to be called at least once on 'foo', but called 0 times.");
             };
 
             it 'should pass when called one time' => sub {
@@ -83,7 +93,7 @@ describe 'Test::Spec::RMock' => sub {
             my $mock = rmock('foo')->__cancel;
             $mock->should_not_receive('bar');
             $mock->bar;
-            is($mock->__check, 'Call constraint failed');
+            is($mock->__check, "Expected 'bar' to be called 0 times on 'foo', but it was called 1 time.");
         };
     };
 
@@ -125,7 +135,7 @@ describe 'Test::Spec::RMock' => sub {
         it "should fail when there are arguments when none were expected" => sub {
             $mock->should_receive('bar')->with();
             $mock->bar(1);
-            is($mock->__check, 'Argument matching failed');
+            like($mock->__check, qr/^Argument matching failed.*got : array with 1 element.*expect : array with 0 element/s);
         };
 
         it "should pass when expecting the number '1' and it is given" => sub {
@@ -143,7 +153,7 @@ describe 'Test::Spec::RMock' => sub {
         it "should fail when expecting the number '1' and '2' is given" => sub {
             $mock->should_receive('bar')->with(1);
             $mock->bar(2);
-            is($mock->__check, 'Argument matching failed');
+            like($mock->__check, qr/^Argument matching failed.*got : '2'.*expect : '1'/s);
         };
 
         it "should pass when expecting (1, 'two') and it is given" => sub {
@@ -179,7 +189,7 @@ describe 'Test::Spec::RMock' => sub {
             $mock->bar;
             $mock->bar;
             $mock->bar;
-            is($mock->__check, 'Call constraint failed');
+            is($mock->__check, "Expected 'bar' to be called 1 time on 'foo', but it was called 2 times.");
         };
     };
 

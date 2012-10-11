@@ -20,9 +20,10 @@ my %WriteMakefileArgs = (
   "LICENSE" => "mit",
   "NAME" => "Test::Spec::RMock",
   "PREREQ_PM" => {
+    "Test::Deep" => "0.108",
     "Test::Spec" => "0.46"
   },
-  "VERSION" => "0.005001",
+  "VERSION" => "0.006",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -15,7 +15,7 @@ Test::Spec::RMock::AnyConstraint
 
 =head1 VERSION
 
-version 0.005001
+version 0.006
 
 =head1 AUTHOR
 

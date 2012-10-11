@@ -13,5 +13,6 @@ meta-spec:
   version: 1.4
 name: Test-Spec-RMock
 requires:
+  Test::Deep: 0.108
   Test::Spec: 0.46
-version: 0.005001
+version: 0.006

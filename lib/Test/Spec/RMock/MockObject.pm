@@ -78,7 +78,7 @@ sub __check {
     my ($self) = @_;
     for my $ms (values %{$self->{_messages}}) {
         for my $m (@$ms) { 
-            push @{$self->{_problems_found}}, $m->call_contraint_error_message unless $m->is_call_constrint_satisfied;
+            push @{$self->{_problems_found}}, $m->call_contraint_error_message($self->{_name}) unless $m->is_call_constrint_satisfied;
         }
     }
     join("\n", @{$self->{_problems_found}});
@@ -93,7 +93,7 @@ sub __find_method_proxy {
         return $e if $e->does_arguments_match(@args);
     }
     for my $e (@$expectations) {
-        push @{$self->{_problems_found}}, $e->argument_matching_error_message;
+        push @{$self->{_problems_found}}, $e->argument_matching_error_message(@args);
     }
     return $expectations->[0];
 }
@@ -105,7 +105,11 @@ sub AUTOLOAD {
     my $expectations = $self->{_messages}{$message_name};
     unless ($expectations) {
         return $self if $self->{_is_null_object};
-        push @{$self->{_problems_found}}, "Unmocked method '$message_name' called on '" . $self->{_name} . "'";
+        push @{$self->{_problems_found}},
+            sprintf("Unmocked method '%s' called on '%s' with (%s)", 
+                    $message_name, 
+                    $self->{_name},
+                    join(', ', map {"'$_'"} @args));
         return;
     }
     my $proxy = $self->__find_method_proxy($expectations, @args);
@@ -130,7 +134,7 @@ Test::Spec::RMock::MockObject
 
 =head1 VERSION
 
-version 0.005001
+version 0.006
 
 =head1 AUTHOR
 
